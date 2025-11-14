@@ -1,0 +1,6 @@
+app_identifier("com.lintain.lintasfin") # The bundle identifier of your app
+apple_id("6755288769") # Your Apple Developer Portal username
+team_id("R7MJW4NVX4") 
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile

@@ -1,0 +1,29 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Upload IPA to App Store Connect"
+  lane :upload do
+    # 使用 API Key 认证（推荐）
+    api_key = app_store_connect_api_key(
+      key_id: "9Z5MBNTZ63",                # App Store Connect API Key ID
+      issuer_id: "0c2e5c4a-63e9-41c5-8e18-ba42574d6cdb", # 发行人 ID
+      key_filepath: "./AuthKey_9Z5MBNTZ63.p8",        # API Key 文件路径
+      duration: 1200,                     # 令牌有效期（秒）
+      in_house: false                      # 是否是企业账号
+    )
+# 打印当前 IP 地址
+    sh("curl ifconfig.me")
+    # 上传 IPA
+    upload_to_app_store(
+      api_key: api_key,
+      ipa: "./lintasfin.ipa",       # IPA 文件路径
+      skip_screenshots: true,              # 跳过截图上传
+      skip_metadata: true,                 # 跳过元数据上传
+      skip_app_version_update: true,       # 跳过版本更新
+      force: true,                         # 跳过 HTML 报告验证
+      precheck_include_in_app_purchases: false # 跳过内购检查
+    )
+       # 打印当前 IP 地址
+    sh("curl ifconfig.me")
+  end
+end
