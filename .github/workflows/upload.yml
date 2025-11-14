@@ -1,0 +1,47 @@
+name: Upload AppStore
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  call-api:
+    runs-on: macOS-latest
+    env:
+      ALL_PROXY: socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001
+    steps:
+      # 配置 Git 使用代理（关键！）
+      - name: Configure Git Proxy
+        run: |
+          git config --global http.proxy "socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001"
+          git config --global https.proxy "socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001"
+    
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0
+
+      - name: Install Bundler & Dependencies
+        run: |
+          gem install bundler
+          bundle install
+
+      # 🔧 关键更新步骤：修复Ruby 3.4+兼容性问题
+      - name: Update Fastlane & Abbrev
+        run: bundle update fastlane abbrev
+
+      - name: Print current IP before setting proxy
+        run: curl ifconfig.me
+
+      - name: Upload IPA to App Store Connect
+        env:
+          ALL_PROXY: socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001
+        run: |
+          echo "Using proxy: $ALL_PROXY"
+          bundle exec fastlane ios upload
+        
+      - name: Print current IP after uploading
+        run: curl ifconfig.me
