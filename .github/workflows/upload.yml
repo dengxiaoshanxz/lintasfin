@@ -9,7 +9,6 @@ jobs:
     runs-on: macOS-latest
     env:
       ALL_PROXY: socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001
-      FASTLANE_DISABLE_UPDATE_CHECK: "1"   # 新增：禁用 fastlane 更新检查
     steps:
       # 配置 Git 使用代理（关键！）
       - name: Configure Git Proxy
@@ -23,15 +22,16 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1.5      # 固定到 3.1.x，避免 runner 上的 3.4 导致兼容问题
-          bundler-cache: true
+          ruby-version: 3.0
 
       - name: Install Bundler & Dependencies
         run: |
           gem install bundler
           bundle install
 
-      # 注意：已移除自动执行 `bundle update fastlane abbrev`，避免升级到不兼容的 fastlane/依赖
+      # 🔧 关键更新步骤：修复Ruby 3.4+兼容性问题
+      - name: Update Fastlane & Abbrev
+        run: bundle update fastlane abbrev
 
       - name: Print current IP before setting proxy
         run: curl ifconfig.me
@@ -39,7 +39,6 @@ jobs:
       - name: Upload IPA to App Store Connect
         env:
           ALL_PROXY: socks5://l8U68dd37677980c:PElAqjSN4Q18tnb0Id@202.155.131.35:45001
-          FASTLANE_DISABLE_UPDATE_CHECK: "1"   # 再次在该 step 明确设置（可选）
         run: |
           echo "Using proxy: $ALL_PROXY"
           bundle exec fastlane ios upload
